@@ -16,14 +16,19 @@ const footer = homeify((index.match(/<footer[\s\S]*?<\/footer>/i)||[""])[0]);
 const menuJs = `<script>function toggleMenu(){var n=document.getElementById('navLinks');if(n)n.classList.toggle('open');}</script>`;
 
 const ARTICLE_CSS = `<style>
-.ovr-main{max-width:840px;margin:0 auto;padding:36px 5% 72px}
+.ovr-main{max-width:840px;margin:0 auto;padding:96px 5% 72px}
 .ovr-crumb{font-size:.8rem;color:var(--gray-500,#8a8f98);margin-bottom:18px}.ovr-crumb a{color:var(--green,#2e7d32);text-decoration:none}
-.ovr-hero{width:100%;height:auto;border-radius:14px;margin:0 0 26px}
-.ovr-article{line-height:1.8;color:var(--gray-800,#374151);font-family:var(--font-body,'Open Sans',system-ui,sans-serif);font-size:1.05rem}
-.ovr-article h1{font-family:var(--font-display,'Playfair Display',serif);font-size:2.2rem;line-height:1.2;margin:.1em 0 .3em;color:var(--gray-900,#1a1a1a)}
-.ovr-article h2{font-family:var(--font-display,'Playfair Display',serif);font-size:1.5rem;margin:2rem 0 .6rem}.ovr-article h3{margin:1.5rem 0 .4rem}
-.ovr-article img{max-width:100%;height:auto;border-radius:12px;display:block;margin:24px auto}.ovr-article a{color:var(--green,#2e7d32)}
-.ovr-meta{color:var(--gray-500,#8a8f98);font-size:.85rem;margin:0 0 20px}
+.ovr-hero{width:100%;height:auto;border-radius:14px;margin:8px 0 28px}
+.ovr-article{line-height:1.75;color:var(--gray-800,#374151);font-family:var(--font-body,'Open Sans',system-ui,sans-serif);font-size:1.05rem}
+.ovr-article h1{font-family:var(--font-display,'Playfair Display',serif);font-size:2.2rem;line-height:1.2;margin:.1em 0 .25em;color:var(--gray-900,#1a1a1a)}
+.ovr-article h2{font-family:var(--font-display,'Playfair Display',serif);font-size:1.5rem;margin:34px 0 12px}
+.ovr-article h3{margin:26px 0 8px}
+.ovr-article p{margin:0 0 18px}
+.ovr-article br{display:none}
+.ovr-article ul,.ovr-article ol{margin:0 0 18px;padding-left:22px}.ovr-article li{margin:0 0 8px}
+.ovr-article img{max-width:100%;height:auto;border-radius:12px;display:block;margin:24px auto}
+.ovr-article a{color:var(--green,#2e7d32)}
+.ovr-meta{color:var(--gray-500,#8a8f98);font-size:.85rem;margin:0 0 6px}
 .ovr-cta{display:inline-block;background:var(--green,#2e7d32);color:#fff!important;padding:14px 30px;border-radius:10px;font-weight:600;margin:26px 0 0;text-decoration:none}
 .ovr-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:22px;margin-top:8px}
 .ovr-card{display:block;border:1px solid var(--gray-100,#eceef3);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;background:#fff;transition:box-shadow .2s,transform .2s}
@@ -64,10 +69,11 @@ for(const item of arts){
   const faqLd=Array.isArray(a.faqs)&&a.faqs.length?JSON.stringify({"@context":"https://schema.org","@type":"FAQPage",mainEntity:a.faqs.map(f=>({"@type":"Question",name:f.question,acceptedAnswer:{"@type":"Answer",text:f.answer}}))}):"";
   const articleLd=JSON.stringify({"@context":"https://schema.org","@type":"Article",headline:a.title,image:a.thumbnailUrl||undefined,datePublished:a.publishedAt,author:{"@type":"Organization",name:a.siteName||DOMAIN},mainEntityOfPage:canonical});
   const jsonLd=faqLd?`${articleLd}</script><script type="application/ld+json">${faqLd}`:articleLd;
-  const main=`<main class="ovr-main"><div class="ovr-crumb"><a href="${SITE_URL}/">Home</a> &rsaquo; <a href="${SITE_URL}/${OUT}/">Blog</a></div>${a.thumbnailUrl?`<img class="ovr-hero" src="${esc(a.thumbnailUrl)}" alt="${esc(a.title)}">`:""}<article class="ovr-article"><h1>${esc(a.title)}</h1><div class="ovr-meta">${a.readingTime?esc(a.readingTime)+" min read":""}</div>${a.content}${cta}</article></main>`;
+  const hero=a.thumbnailUrl?`<img class="ovr-hero" src="${esc(a.thumbnailUrl)}" alt="${esc(a.title)}">`:"";
+  const main=`<main class="ovr-main"><div class="ovr-crumb"><a href="${SITE_URL}/">Home</a> &rsaquo; <a href="${SITE_URL}/${OUT}/">Blog</a></div><article class="ovr-article"><h1>${esc(a.title)}</h1><div class="ovr-meta">${a.readingTime?esc(a.readingTime)+" min read":""}</div>${hero}${a.content}${cta}</article></main>`;
   await mkdir(`${OUT}/${a.slug}`,{recursive:true});
   await writeFile(`${OUT}/${a.slug}/index.html`,shell({title:a.title,description:a.metaDescription||a.excerpt||"",canonical,image:a.thumbnailUrl,jsonLd,main}));
-  console.log(`  wrote ${OUT}/${a.slug}/index.html`); urls.push(canonical);
+  urls.push(canonical);
 }
 const cards=arts.map(a=>`<a class="ovr-card" href="${SITE_URL}/${OUT}/${esc(a.slug)}/">${a.thumbnailUrl?`<img src="${esc(a.thumbnailUrl)}" alt="${esc(a.title)}">`:""}<div class="ovr-card-body"><h2>${esc(a.title)}</h2><p>${esc(a.excerpt||a.metaDescription||"")}</p></div></a>`).join("\n");
 const indexMain=`<main class="ovr-main"><div class="ovr-crumb"><a href="${SITE_URL}/">Home</a> &rsaquo; Blog</div><h1 class="ovr-article" style="margin-bottom:24px">Insights &amp; Guides</h1><div class="ovr-grid">${cards}</div></main>`;
